@@ -1,15 +1,24 @@
 from rest_framework import serializers
-from .models import Person
+from .models import Person,Team
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['team_name']  # other fields are ignored
 
 class PersonSerializer(serializers.ModelSerializer):
+    team = TeamSerializer(read_only=True)  # read_only=True in a serializer field ensures that the field is used only for serialization and is ignored during deserialization.
+                                           # During deserialization (e.g., creating or updating a Person), team field will be ignored. If you try to update or create a Person with a team object, it will not affect the Person instance.
     class Meta:
         model = Person
         fields = '__all__'
-        depth = 1   # to show all the fields (in the case of foreign key field)
+        depth = 1   # to show all the fields (in the case of foreign key field)  
 
     # for server side validation
     def validate(self, attrs):      # attrs  means attributes (just any name)
-        spi_chars = '!@#$%^&*(){}[]|\?'
+        spi_chars = r"!@#$%^&*(){}}[]|\\?"    # spi_chars = "!@#$%^&*(){}}[]|\\?"  (special characters)
+
         if any(char in spi_chars for char in attrs['name']):
             raise serializers.ValidationError({"name_error":"Name should not contain special characters"})
         if attrs['age'] < 18:
