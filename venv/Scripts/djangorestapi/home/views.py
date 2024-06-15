@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Person
+from .models import Person,Team
 from .serializer import PersonSerializer
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -26,7 +26,8 @@ def index(request):
 @api_view(['GET','POST','PUT','PATCH','DELETE'])
 def person(request):
     if request.method == 'GET':
-        personobj = Person.objects.all()
+       # personobj = Person.objects.all()
+        personobj = Person.objects.filter(team__isnull=False)  # to filter only the records thats team field value is not null  (team is a field name in Person model)
         serializer = PersonSerializer(personobj, many =True)
         return Response(serializer.data)
     

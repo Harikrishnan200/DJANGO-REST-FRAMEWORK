@@ -5,6 +5,16 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = '__all__'
+        depth = 1   # to show all the fields (in the case of foreign key field)
+
+    # for server side validation
+    def validate(self, attrs):      # attrs  means attributes (just any name)
+        spi_chars = '!@#$%^&*(){}[]|\?'
+        if any(char in spi_chars for char in attrs['name']):
+            raise serializers.ValidationError({"name_error":"Name should not contain special characters"})
+        if attrs['age'] < 18:
+            raise serializers.ValidationError({'age_error': 'You must be at least 18 years old'})
+        return attrs
 
 
 
