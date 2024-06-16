@@ -1,10 +1,44 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Person,Team
-from .serializer import PersonSerializer
+from .serializer import PersonSerializer,RegisterSerializer,LoginSerializer
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 # Create your views here.
+
+
+# here we use APIView method (can use any other method)
+class RegisterAPI(APIView):
+    def post(self, request, format=None):
+        serializer = RegisterSerializer(data=request.data)  # create an instance for RegisterSerializer class
+        # this serializer returns data which may be either valid or invalid
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+
+        return Response({'message':'User created Successfilly'}, status=status.HTTP_201_CREATED)
+
+class CreateLoginAPI(APIView):
+    def post(self,request):
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = authenticate(username=serializer.data['username'],password=serializer.data['password'])
+
+        if not user:
+            return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        token,value = Token.objects.get_or_create(user=user)  # value is a boolean variable , get_or_create fn actually returns two values
+        return Response({"message":"Login Successfully","token":str(token)}, status=status.HTTP_201_CREATED)
+
+
+
 
 @api_view(['GET','POST'])
 def index(request):
@@ -33,7 +67,7 @@ def person(request):
     
     elif request.method == 'POST':
         date = request.data
-        serializer = PersonSerializer(data=date)
+        serializer = PersonSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
            # message = {'data':serializer.data, "success":True}
