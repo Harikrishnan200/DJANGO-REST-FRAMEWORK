@@ -7,11 +7,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
+from rest_framework.authentication import TokenAuthentication
 # Create your views here.
 
 
 # here we use APIView method (can use any other method)
 class RegisterAPI(APIView):
+    permission_classes = [AllowAny]  # permission_classes = []  also works
     def post(self, request, format=None):
         serializer = RegisterSerializer(data=request.data)  # create an instance for RegisterSerializer class
         # this serializer returns data which may be either valid or invalid
@@ -24,6 +28,7 @@ class RegisterAPI(APIView):
         return Response({'message':'User created Successfilly'}, status=status.HTTP_201_CREATED)
 
 class CreateLoginAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self,request):
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
@@ -41,6 +46,8 @@ class CreateLoginAPI(APIView):
 
 
 @api_view(['GET','POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def index(request):
     if request.method == 'GET':
         people = {
@@ -58,6 +65,8 @@ def index(request):
 
 
 @api_view(['GET','POST','PUT','PATCH','DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def person(request):
     if request.method == 'GET':
        # personobj = Person.objects.all()
