@@ -9,7 +9,7 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=255)
 
     # To validate if the user is already existing or not
-    def validate(self, data):
+    def validate(self, data):   # this fn actually works when we call serializer.is_valid() fn in views
         if data['username']:
             if User.objects.filter(username=data['username']).exists():
                 raise serializers.ValidationError({'username': 'Username already exists'})
@@ -21,7 +21,7 @@ class RegisterSerializer(serializers.Serializer):
     
     # If the above function is ok the goes to create functiom
     # To create a new user
-    def create(self, validated_data):
+    def create(self, validated_data):   # this fn actually works whwn we call serializer.save()
         user = User.objects.create_user(username=validated_data['username'],email=validated_data['email'])
         user.set_password(validated_data['password'])
         user.save()
@@ -46,7 +46,7 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1   # to show all the fields (in the case of foreign key field)  
     
-    def get_team_info(self,obj):
+    def get_team_info(self,obj):   # syntax for this fn is get_field name ( here team_info is the method name )
         return "extra serializer field"
 
     # OUTPUT OF THIS METHOD

@@ -16,10 +16,10 @@ class RegisterAPI(APIView):
         serializer = RegisterSerializer(data=request.data)  # create an instance for RegisterSerializer class
         # this serializer returns data which may be either valid or invalid
 
-        if not serializer.is_valid():
+        if not serializer.is_valid():  # when we call serializer.is_valid() actually validate fn in RegisterSerializer class ( in serializer.py ) actually works
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer.save()
+        serializer.save()        # when we call serializer.save() actually create fn in RegisterSerializer class ( in serializer.py ) actually works
 
         return Response({'message':'User created Successfilly'}, status=status.HTTP_201_CREATED)
 
